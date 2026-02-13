@@ -1,0 +1,15 @@
+# Archivos compilados (pesan mucho y no se suben)
+/target/
+*.class
+
+# Configuración de IDEs
+.idea/
+.vscode/
+*.iml
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Si llegas a usar un archivo .env para tus variables
+.env
