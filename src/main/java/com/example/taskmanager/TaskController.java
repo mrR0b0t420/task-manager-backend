@@ -9,6 +9,12 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * REST Controller for managing tasks.
+ * Provides endpoints for creating, retrieving, updating, and deleting tasks.
+ * 
+ * Base URL: /api/tasks
+ */
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
@@ -16,18 +22,48 @@ public class TaskController {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    private User getCurrentUser() {
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                .getAuthentication().getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+    }
+
+    private boolean isAdmin(User user) {
+        return "ADMIN".equals(user.getRole());
+    }
+
     @GetMapping
     public List<Task> getAllTasks(@RequestParam(value = "category", required = false) Task.Category category) {
-        if (category != null) {
-            return taskRepository.findByCategory(category);
+        User currentUser = getCurrentUser();
+        List<Task> tasks;
+
+        if (isAdmin(currentUser)) {
+            tasks = taskRepository.findAll();
+        } else {
+            tasks = taskRepository.findByUser(currentUser);
         }
-        return taskRepository.findAll();
+
+        if (category != null) {
+            return tasks.stream()
+                    .filter(t -> t.getCategory() == category)
+                    .toList();
+        }
+        return tasks;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable("id") Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+
+        User currentUser = getCurrentUser();
+        if (!isAdmin(currentUser) && !task.getUser().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+        }
         return ResponseEntity.ok(task);
     }
 
@@ -35,17 +71,15 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<Task> createTask(@RequestBody Task task) {
-        logger.info("Received request to create task: {}", task);
-        try {
-            // Force status to TODO for all new tasks
-            task.setStatus(TaskStatus.TODO);
-            Task createdTask = taskRepository.save(task);
-            logger.info("Task created successfully with ID: {}", createdTask.getId());
-            return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
-        } catch (Exception e) {
-            logger.error("Error creating task", e);
-            throw e;
-        }
+        User currentUser = getCurrentUser();
+        task.setUser(currentUser);
+
+        logger.info("Creating task for user: {}", currentUser.getUsername());
+
+        // Force status to TODO for all new tasks
+        task.setStatus(TaskStatus.TODO);
+        Task createdTask = taskRepository.save(task);
+        return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
@@ -53,10 +87,14 @@ public class TaskController {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
 
+        User currentUser = getCurrentUser();
+        if (!isAdmin(currentUser) && !task.getUser().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+        }
+
         task.setTitle(taskDetails.getTitle());
         task.setCategory(taskDetails.getCategory());
         task.setPriority(taskDetails.getPriority());
-        // task.setLifespanHours(taskDetails.getLifespanHours()); // Removed
         if (taskDetails.getStatus() != null) {
             task.setStatus(taskDetails.getStatus());
         }
@@ -65,12 +103,22 @@ public class TaskController {
         return ResponseEntity.ok(updatedTask);
     }
 
-    // New specific endpoint for status updates
     @PatchMapping("/{id}/status")
     public ResponseEntity<Task> updateStatus(@PathVariable("id") Long id,
             @RequestBody Map<String, String> statusUpdate) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+
+        User currentUser = getCurrentUser();
+        if (!isAdmin(currentUser) && (task.getUser() == null || !task.getUser().getId().equals(currentUser.getId()))) {
+            // Allow admin or owner. Note: Safe handling if task.user is null (legacy data)
+            // -> assume Admin only or just fail.
+            // For now enabling access if legacy (user=null) only for Admin? Or anyone?
+            // Lets stick to strict owner check.
+            if (task.getUser() != null && !task.getUser().getId().equals(currentUser.getId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+            }
+        }
 
         String newStatusStr = statusUpdate.get("status");
         if (newStatusStr != null) {
@@ -89,6 +137,11 @@ public class TaskController {
     public ResponseEntity<Void> deleteTask(@PathVariable("id") Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+
+        User currentUser = getCurrentUser();
+        if (!isAdmin(currentUser) && !task.getUser().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+        }
 
         taskRepository.delete(task);
         return ResponseEntity.noContent().build();

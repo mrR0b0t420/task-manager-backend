@@ -5,6 +5,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * Global CORS configuration.
+ * usage of @Bean WebMvcConfigurer to allow cross-origin requests.
+ * 
+ * Currently configured to allow ALL origins (wildcard) to facilitate
+ * development and deployment.
+ */
 @Configuration
 public class CorsConfig {
 

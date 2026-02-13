@@ -6,6 +6,14 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
+/**
+ * Represents a task in the system.
+ * This entity maps to the "task" table in the database.
+ * 
+ * It includes details such as title, category, priority, and status.
+ * 
+ * @author Nexus Supply Chain Dev Team
+ */
 @Entity
 @Data
 @NoArgsConstructor
@@ -26,6 +34,13 @@ public class Task {
     // private int lifespanHours; // Removed
 
     private LocalDateTime createdAt;
+
+    /**
+     * The user who owns this task.
+     */
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Enumerated(EnumType.STRING)
     private TaskStatus status = TaskStatus.TODO;
