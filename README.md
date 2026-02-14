@@ -1,5 +1,7 @@
 # Task Manager - Backend 🛡️
 
+[![Task Manager's GitHub stats](https://github-readme-stats.vercel.app/api?username=mrR0b0t420)](https://github.com/anuraghazra/github-readme-stats)
+
 ## 1. Overview & Architecture
 This is a **RESTful API** built with **Spring Boot 3** and **Java 17**. It serves as the core logic layer for the Task Management System, handling data persistence, validation, and business rules.
 
@@ -9,7 +11,7 @@ This is a **RESTful API** built with **Spring Boot 3** and **Java 17**. It serve
 -   **Layered Architecture**: Separation of concerns (Controller handles HTTP, Repository handles DB).
 
 ```mermaid
-graph TD
+flowchart TD
     Client[Frontend] -->|HTTP Request| Controller[TaskController]
     Controller -->|Method Call| Repo[TaskRepository]
     Repo -->|SQL| DB[(PostgreSQL)]
