@@ -28,7 +28,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     /**
      * Finds all tasks with the given status.
      * 
-     * @param status The status to filter by (TODO, IN_PROGRESS, DONE).
+     * @param status The status to filter by (TO-DO, IN_PROGRESS, DONE).
      * @return List of matching tasks.
      */
     List<Task> findByStatus(TaskStatus status);

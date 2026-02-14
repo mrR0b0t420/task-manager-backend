@@ -82,7 +82,7 @@ public class TaskController {
 
         logger.info("Creating task for user: {}", currentUser.getUsername());
 
-        // Force status to TODO for all new tasks
+        // Force status to TO-DO for all new tasks
         task.setStatus(TaskStatus.TODO);
         Task createdTask = taskRepository.save(task);
         return new ResponseEntity<>(createdTask, HttpStatus.CREATED);

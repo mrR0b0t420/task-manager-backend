@@ -4,7 +4,6 @@ import com.example.taskmanager.models.User;
 import com.example.taskmanager.repositories.UserRepository;
 import com.example.taskmanager.security.JwtUtil;
 import com.example.taskmanager.security.CustomUserDetailsService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
