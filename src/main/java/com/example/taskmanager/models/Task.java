@@ -38,9 +38,15 @@ public class Task {
     /**
      * The user who owns this task.
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<Subtask> subtasks = new java.util.ArrayList<>();
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<Comment> comments = new java.util.ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private TaskStatus status = TaskStatus.TODO;
