@@ -1,7 +1,5 @@
 # Task Manager - Backend 🛡️
 
-[![Task Manager's GitHub stats](https://github-readme-stats.vercel.app/api?username=mrR0b0t420)](https://github.com/anuraghazra/github-readme-stats)
-
 ## 1. Overview & Architecture
 This is a **RESTful API** built with **Spring Boot 3** and **Java 17**. It serves as the core logic layer for the Task Management System, handling data persistence, validation, and business rules.
 
@@ -24,28 +22,34 @@ flowchart TD
 ### `TaskController.java`
 The entry point for API requests. It defines the endpoints and handles HTTP status codes.
 -   **CORS**: Configured to allow requests from any origin (`*`) to facilitate easy deployment on Vercel/Render.
+-   **Security**: Enforces Role-Based Access Control (Admin vs User owner).
+
+### `SubtaskController.java` & `CommentController.java`
+Manage the granular details of a task.
+-   **Subtasks**: Toggle status, delete.
+-   **Comments**: Add to task/subtask.
 
 ### `TaskRepository.java`
 Interface extending `JpaRepository`.
 -   Provides standard CRUD methods (`save`, `findById`, `delete`).
--   Include custom finders: `findByCategory` and `findByStatus`.
+-   Include custom finders: `findByCategory`, `findByStatus`, `findByUser`.
 
-### `Task.java` (Entity)
-The data model mapping to the `task` table.
+### Entities
+-   **`Task`**: Main unit of work.
+-   **`Subtask`**: Smaller units within a task.
+-   **`Comment`**: Discussion on tasks/subtasks.
+-   **`User`**: System users (Admin/User).
 
 ---
 
 ## 3. Database Schema
-One single table named **`task`**.
 
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `id` | BigInt | Auto-increment Primary Key |
-| `title` | Varchar | Required |
-| `category` | Enum | WORK, HOME, PERSONAL |
-| `priority` | Int | 1 (High) - 5 (Low) |
-| `status` | Enum | TODO, IN_PROGRESS, DONE |
-| `created_at` | Timestamp | Auto-set on creation |
+| Table | Notes |
+| :--- | :--- |
+| **`task`** | Main entity `(id, title, status, user_id, ...)` |
+| **`users`** | `(id, username, password, role)` |
+| **`subtask`** | Linked to Task `(id, title, completed, task_id)` |
+| **`comment`** | Linked to User + Task/Subtask `(id, content, user_id, task_id)` |
 
 ---
 
