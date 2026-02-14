@@ -67,15 +67,30 @@ public class TaskController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
 
         User currentUser = getCurrentUser();
-        // Allow if Admin OR (Task has owner AND Owner is Current User)
+
+        logger.info("DEBUG SECURITY: User={}, Role={}, TaskId={}, TaskOwner={}",
+                currentUser.getUsername(), currentUser.getRole(), id,
+                task.getUser() != null ? task.getUser().getUsername() : "null");
+
         // Allow if Admin OR (Task has owner AND Owner is Current User) OR Task is
         // Legacy (No owner)
-        if (!isAdmin(currentUser) && task.getUser() != null && !task.getUser().getId().equals(currentUser.getId())) {
+        // Check Admin
+        if (isAdmin(currentUser)) {
+            return ResponseEntity.ok(task);
+        }
+
+        // Check Legacy
+        if (task.getUser() == null) {
+            return ResponseEntity.ok(task);
+        }
+
+        // Check Ownership
+        if (!task.getUser().getId().equals(currentUser.getId())) {
             logger.warn("Access denied for user {} to task {}. role={}, taskOwner={}",
-                    currentUser.getUsername(), id, currentUser.getRole(),
-                    task.getUser().getUsername());
+                    currentUser.getUsername(), id, currentUser.getRole(), task.getUser().getUsername());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
+
         return ResponseEntity.ok(task);
     }
 
