@@ -1,4 +1,8 @@
-package com.example.taskmanager;
+package com.example.taskmanager.repositories;
+
+import com.example.taskmanager.models.Task;
+import com.example.taskmanager.models.TaskStatus;
+import com.example.taskmanager.models.User;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -36,4 +40,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
      * @return List of tasks.
      */
     List<Task> findByUser(User user);
+
+    List<Task> findByUserId(Long userId);
 }

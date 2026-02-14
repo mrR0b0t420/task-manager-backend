@@ -1,4 +1,7 @@
-package com.example.taskmanager;
+package com.example.taskmanager.controllers;
+
+import com.example.taskmanager.models.User;
+import com.example.taskmanager.repositories.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -42,5 +45,14 @@ public class UserController {
         }
         userRepository.deleteById(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/password")
+    public ResponseEntity<?> resetPassword(@PathVariable("id") Long id, @RequestBody String newPassword) {
+        return userRepository.findById(id).map(user -> {
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+            return ResponseEntity.ok().build();
+        }).orElse(ResponseEntity.notFound().build());
     }
 }

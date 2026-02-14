@@ -1,4 +1,11 @@
-package com.example.taskmanager;
+package com.example.taskmanager.controllers;
+
+import com.example.taskmanager.models.User;
+import com.example.taskmanager.repositories.UserRepository;
+import com.example.taskmanager.dtos.AuthRequest;
+import com.example.taskmanager.dtos.AuthResponse;
+import com.example.taskmanager.security.JwtUtil;
+import com.example.taskmanager.security.CustomUserDetailsService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

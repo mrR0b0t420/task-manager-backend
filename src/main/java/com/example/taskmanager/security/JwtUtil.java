@@ -1,4 +1,4 @@
-package com.example.taskmanager;
+package com.example.taskmanager.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -38,7 +38,7 @@ public class JwtUtil {
         return Jwts.parserBuilder().setSigningKey(KEY).build().parseClaimsJws(token).getBody();
     }
 
-    private Boolean isTokenExpired(String token) {
+    Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 

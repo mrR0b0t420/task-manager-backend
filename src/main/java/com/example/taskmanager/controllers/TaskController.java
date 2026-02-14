@@ -1,4 +1,10 @@
-package com.example.taskmanager;
+package com.example.taskmanager.controllers;
+
+import com.example.taskmanager.models.Task;
+import com.example.taskmanager.models.User;
+import com.example.taskmanager.models.TaskStatus;
+import com.example.taskmanager.repositories.TaskRepository;
+import com.example.taskmanager.repositories.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
