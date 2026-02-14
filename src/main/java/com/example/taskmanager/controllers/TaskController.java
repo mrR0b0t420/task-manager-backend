@@ -67,7 +67,11 @@ public class TaskController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
 
         User currentUser = getCurrentUser();
-        if (!isAdmin(currentUser) && !task.getUser().getId().equals(currentUser.getId())) {
+        // Allow if Admin OR (Task has owner AND Owner is Current User)
+        if (!isAdmin(currentUser) && (task.getUser() == null || !task.getUser().getId().equals(currentUser.getId()))) {
+            logger.warn("Access denied for user {} to task {}. role={}, taskOwner={}",
+                    currentUser.getUsername(), id, currentUser.getRole(),
+                    task.getUser() != null ? task.getUser().getUsername() : "null");
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
         return ResponseEntity.ok(task);
@@ -94,7 +98,7 @@ public class TaskController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
 
         User currentUser = getCurrentUser();
-        if (!isAdmin(currentUser) && !task.getUser().getId().equals(currentUser.getId())) {
+        if (!isAdmin(currentUser) && (task.getUser() == null || !task.getUser().getId().equals(currentUser.getId()))) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
 
@@ -117,13 +121,7 @@ public class TaskController {
 
         User currentUser = getCurrentUser();
         if (!isAdmin(currentUser) && (task.getUser() == null || !task.getUser().getId().equals(currentUser.getId()))) {
-            // Allow admin or owner. Note: Safe handling if task.user is null (legacy data)
-            // -> assume Admin only or just fail.
-            // For now enabling access if legacy (user=null) only for Admin? Or anyone?
-            // Lets stick to strict owner check.
-            if (task.getUser() != null && !task.getUser().getId().equals(currentUser.getId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
-            }
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
 
         String newStatusStr = statusUpdate.get("status");
@@ -145,7 +143,7 @@ public class TaskController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
 
         User currentUser = getCurrentUser();
-        if (!isAdmin(currentUser) && !task.getUser().getId().equals(currentUser.getId())) {
+        if (!isAdmin(currentUser) && (task.getUser() == null || !task.getUser().getId().equals(currentUser.getId()))) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
 
